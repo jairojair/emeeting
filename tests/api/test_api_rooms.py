@@ -88,7 +88,7 @@ def test_create_room_already_exists(client, room):
     assert response.json() == expected
 
 
-def test_create_room(client):
+def test_create_and_delete_room(client):
 
     room = {"name": fake.name()}
 
