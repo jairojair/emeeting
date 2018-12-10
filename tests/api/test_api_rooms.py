@@ -76,9 +76,7 @@ def test_create_room_with_wrong_type(client):
     assert response.json() == {"errors": {"name": "unexpected type int"}}
 
 
-def test_create_room_already_exists(client):
-
-    room = {"name": fake.name()}
+def test_create_room_already_exists(client, room):
 
     expected = {"errors": "Conflict, This room name already exists in database."}
 
@@ -88,9 +86,6 @@ def test_create_room_already_exists(client):
     response = client.post("/v1/rooms/", json=room)
     assert response.status_code == 409
     assert response.json() == expected
-
-    response = client.delete(location)
-    assert response.status_code == 200
 
 
 def test_create_room(client):
@@ -107,25 +102,19 @@ def test_create_room(client):
     assert response.status_code == 200
 
 
-def test_update_room(client):
+"""
+Update room.
+"""
 
-    room = {"name": fake.name()}
 
-    response = client.post("/v1/rooms/", json=room)
-    assert response.status_code == 201
-    assert response.json() == {"message": "Room created successfully."}
+def test_update_room(client, room):
 
-    location = response.headers.get("Content-Location")
-
+    id = room.get("id")
     new_room = {"name": fake.name()}
 
     # Update
-    response = client.put(location, json=new_room)
+    response = client.put(f"/v1/rooms/{id}", json=new_room)
     assert response.status_code == 200
 
-    response = client.get(location)
+    response = client.get(f"/v1/rooms/{id}")
     assert response.json().get("name") == new_room.get("name")
-
-    # Delete room
-    response = client.delete(location)
-    assert response.status_code == 200

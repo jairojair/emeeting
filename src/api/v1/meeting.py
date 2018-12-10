@@ -1,6 +1,6 @@
 import logging
 
-from molten import Route, HTTP_200
+from molten import Route, HTTP_200, HTTP_404, HTTPError
 
 from models.meeting import Meeting
 
@@ -17,4 +17,31 @@ def get_meetings():
     return HTTP_200, meetings.serialize()
 
 
-routes = [Route("/", get_meetings, "GET")]
+def get_meeting_by_id(id: int):
+    """
+    Get meeting by id.
+    """
+    meeting = _find_meeting(id)
+
+    return meeting.serialize()
+
+
+"""
+Privates functions
+"""
+
+
+def _find_meeting(id):
+    """
+    Find a meeting by id
+    """
+
+    meeting = Meeting.find(id)
+
+    if not meeting:
+        raise HTTPError(HTTP_404, {"errors": "Meeting id not found"})
+
+    return meeting
+
+
+routes = [Route("/", get_meetings, "GET"), Route("/{id}", get_meeting_by_id, "GET")]
