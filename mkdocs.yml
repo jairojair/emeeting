@@ -1,0 +1,34 @@
+site_name: 'Emeeting'
+site_description: 'A simple API application for managing your room meetings.'
+site_url: 'https://jairojair.github.io/emeeting/'
+
+repo_name: 'jairojair/emeeting'
+repo_url: 'https://github.com/jairojair/emeeting'
+
+theme:
+  name: 'material'
+  logo:
+    icon: 'done_all'
+  palette:
+    primary: 'green'
+    accent: 'green'
+
+extra_css:
+  - 'assets/stylesheets/extra.css'
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - footnotes
+  - codehilite:
+      linenums: true
+  - toc:
+      permalink: '#'
+  
+  - pymdownx.superfences
+
+nav:
+  - Introduction: 'index.md'
+  - Quickstart: 'started.md'
+
+dev_addr: '0.0.0.0:7000'

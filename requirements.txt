@@ -1,0 +1,9 @@
+molten==0.7.3
+orator==0.9.7
+pytest-cov==2.6.0
+pycodestyle==2.4.0
+gunicorn==19.9.0
+black==18.9b0
+psycopg2==2.7.3
+mkdocs-material==3.0.4
+py_database_url==0.0.4
