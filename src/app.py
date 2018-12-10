@@ -2,7 +2,8 @@ from molten import App, Include, Route
 from molten.openapi import Metadata, OpenAPIHandler, OpenAPIUIHandler
 from settings import logging
 
-from api.v1 import room
+from api.v1 import room, meeting
+
 
 log = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ routes = [
     Route("/", get_docs),
     Route("/schema", get_schema),
     Include("/v1/rooms", routes=room.routes),
+    Include("/v1/meetings", routes=meeting.routes),
 ]
 
 """
