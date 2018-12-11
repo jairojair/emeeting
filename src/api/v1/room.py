@@ -1,26 +1,11 @@
 import logging
-from typing import Optional
 
-from molten import (
-    Route,
-    HTTPError,
-    HTTP_200,
-    HTTP_201,
-    HTTP_404,
-    HTTP_409,
-    schema,
-    Field,
-)
+from molten import Route, HTTPError, HTTP_200, HTTP_201, HTTP_404, HTTP_409
 
+from schemas import RoomType
 from models.room import Room
 
 log = logging.getLogger(__name__)
-
-
-@schema
-class RoomType:
-    id: Optional[int] = Field(response_only=True)
-    name: str = Field(min_length=1, max_length=60)
 
 
 def get_rooms():
