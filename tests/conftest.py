@@ -2,8 +2,10 @@ import pytest
 
 from app import app
 from faker import Faker
+from random import randint
 from molten import testing
 from models.room import Room
+from models.meeting import Meeting
 
 fake = Faker()
 
@@ -14,6 +16,11 @@ def client():
 
 
 @pytest.fixture()
+def number():
+    return randint(0, 10000)
+
+
+@pytest.fixture()
 def room():
 
     room_data = {"name": fake.name()}
@@ -21,3 +28,19 @@ def room():
 
     yield room.serialize()
     room.delete()
+
+
+@pytest.fixture()
+def meeting(room):
+
+    meeting_data = {
+        "title": fake.text(60),
+        "start": fake.future_datetime().isoformat(),
+        "end": fake.future_datetime(end_date="+10m").isoformat(),
+        "owner": fake.name(),
+        "room_id": room.get("id"),
+    }
+    meeting = Meeting.create(**meeting_data)
+
+    yield meeting.serialize()
+    meeting.delete()

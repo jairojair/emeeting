@@ -1,26 +1,11 @@
 import logging
-from typing import Optional
 
-from molten import (
-    Route,
-    HTTPError,
-    HTTP_200,
-    HTTP_201,
-    HTTP_404,
-    HTTP_409,
-    schema,
-    Field,
-)
+from molten import Route, HTTP_200, HTTP_201, HTTP_404, HTTP_409, HTTPError
 
+from schemas import RoomType
 from models.room import Room
 
 log = logging.getLogger(__name__)
-
-
-@schema
-class RoomType:
-    id: Optional[int] = Field(response_only=True)
-    name: str = Field(min_length=1, max_length=60)
 
 
 def get_rooms():
@@ -58,8 +43,10 @@ def create_room(roomData: RoomType):
     room = Room.create(name=name)
 
     headers = {"Content-Location": f"/v1/rooms/{room.id}"}
+    msg = "Room created successfully."
+    log.info(f"{msg} with id: {room.id}")
 
-    return HTTP_201, {"message": "Room created successfully."}, headers
+    return HTTP_201, {"message": msg}, headers
 
 
 def update_room(id: int, roomData: RoomType):
