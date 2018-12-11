@@ -33,7 +33,7 @@ def create_meeting(meetingData: MeetingType):
     Create a new meeting.
     """
 
-    _check_room_exist(meetingData.room_id)
+    _check_if_room_exist(meetingData.room_id)
 
     meeting = Meeting()
 
@@ -71,7 +71,7 @@ def _find_meeting(id):
     return meeting
 
 
-def _check_room_exist(id):
+def _check_if_room_exist(id):
     """
     check if room exist.
     """
