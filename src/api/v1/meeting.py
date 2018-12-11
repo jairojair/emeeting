@@ -53,6 +53,17 @@ def create_meeting(meetingData: MeetingType):
     return HTTP_201, {"message": f"{msg}"}, headers
 
 
+def delete_meeting(id: int):
+    """
+    Delete a meeting by id.
+    """
+
+    meeting = _find_meeting(id)
+    meeting.delete()
+
+    return HTTP_200, {"message": "Meeting deleted successfully."}
+
+
 """
 Privates functions
 """
@@ -86,4 +97,5 @@ routes = [
     Route("/", get_meetings, "GET"),
     Route("/", create_meeting, "POST"),
     Route("/{id}", get_meeting_by_id, "GET"),
+    Route("/{id}", delete_meeting, "DELETE"),
 ]
