@@ -1,6 +1,6 @@
 import logging
 
-from molten import Route, HTTP_200, HTTP_201, HTTP_400, HTTP_404, HTTPError
+from molten import Route, HTTP_200, HTTP_201, HTTP_400, HTTP_404, HTTPError, dump_schema
 
 from schemas import MeetingType
 from models.meeting import Meeting
@@ -35,15 +35,7 @@ def create_meeting(meetingData: MeetingType):
 
     _check_if_room_exist(meetingData.room_id)
 
-    meeting = Meeting()
-
-    meeting.title = meetingData.title
-    meeting.start = meetingData.start
-    meeting.end = meetingData.end
-    meeting.owner = meetingData.owner
-    meeting.room_id = meetingData.room_id
-
-    meeting.save()
+    meeting = Meeting.create(**dump_schema(meetingData))
 
     headers = {"Content-Location": f"/v1/meetings/{meeting.id}"}
 
