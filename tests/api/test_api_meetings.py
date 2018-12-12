@@ -84,6 +84,34 @@ def test_create_meeting(client, room):
 
 
 """
+Update meeting.
+"""
+
+
+def test_update_meeting(client, room, meeting):
+
+    id = meeting.get("id")
+
+    fake = Faker()
+
+    meeting_data = {
+        "title": fake.text(60),
+        "start": fake.future_datetime().isoformat(),
+        "end": fake.future_datetime(end_date="+10m").isoformat(),
+        "owner": fake.name(),
+        "room_id": room.get("id"),
+    }
+
+    # Update
+    response = client.put(f"/v1/meetings/{id}", json=meeting_data)
+    assert response.status_code == 200
+    assert response.json() == {"message": "Meeting update successfully."}
+
+    response = client.get(f"/v1/meetings/{id}")
+    assert response.json().get("title") == meeting_data.get("title")
+
+
+"""
 Delete meeting.
 """
 

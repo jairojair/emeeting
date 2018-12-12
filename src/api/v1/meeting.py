@@ -45,6 +45,18 @@ def create_meeting(meetingData: MeetingType):
     return HTTP_201, {"message": f"{msg}"}, headers
 
 
+def update_meeting(id: int, meetingData: MeetingType):
+    """
+    Update a meeting by id
+    """
+
+    meeting = _find_meeting(id)
+    meeting.update(**dump_schema(meetingData))
+    meeting.save()
+
+    return HTTP_200, {"message": "Meeting update successfully."}
+
+
 def delete_meeting(id: int):
     """
     Delete a meeting by id.
@@ -89,5 +101,6 @@ routes = [
     Route("/", get_meetings, "GET"),
     Route("/", create_meeting, "POST"),
     Route("/{id}", get_meeting_by_id, "GET"),
+    Route("/{id}", update_meeting, "PUT"),
     Route("/{id}", delete_meeting, "DELETE"),
 ]
