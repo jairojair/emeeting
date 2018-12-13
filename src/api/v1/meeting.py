@@ -1,6 +1,17 @@
+import re
 import logging
+from typing import Optional
 
-from molten import Route, HTTP_200, HTTP_201, HTTP_400, HTTP_404, HTTPError, dump_schema
+from molten import (
+    Route,
+    HTTP_200,
+    HTTP_201,
+    HTTP_400,
+    HTTP_404,
+    HTTPError,
+    dump_schema,
+    QueryParam,
+)
 
 from schemas import MeetingType
 from models.meeting import Meeting
@@ -9,12 +20,15 @@ from models.room import Room
 log = logging.getLogger(__name__)
 
 
-def get_meetings():
+def get_meetings(room_id: Optional[QueryParam], date: Optional[QueryParam]):
     """
     Return all meetings.
     """
 
     meetings = Meeting.all()
+
+    if room_id:
+        meetings = _filter_by_room_id(meetings, room_id)
 
     return HTTP_200, meetings.serialize()
 
@@ -97,8 +111,24 @@ def _check_if_room_exist(id):
         raise HTTPError(HTTP_400, {"errors": "The room id don't exist."})
 
 
+def _filter_by_room_id(meetings, room_id):
+    """
+    Filter meetings by room id.
+    """
+
+    try:
+
+        id = int(room_id)
+
+    except ValueError:
+        msg = "The room_id need be a integer. Exemple: room_id: 100"
+        raise HTTPError(HTTP_400, {"errors": msg})
+
+    return meetings.where("room_id", id)
+
+
 routes = [
-    Route("/", get_meetings, "GET"),
+    Route("", get_meetings, "GET"),
     Route("/", create_meeting, "POST"),
     Route("/{id}", get_meeting_by_id, "GET"),
     Route("/{id}", update_meeting, "PUT"),
