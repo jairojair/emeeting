@@ -8,7 +8,7 @@ Get meetings or meeting.
 
 def test_get_all_meetings(client):
 
-    response = client.get("/v1/meetings/")
+    response = client.get("/v1/meetings")
     assert response.status_code == 200
     assert type(response.json()) == list
 
@@ -19,6 +19,40 @@ def test_get_not_found_meeting(client):
 
     assert response.status_code == 404
     assert response.json() == {"errors": "Meeting id not found"}
+
+
+def test_meetings_filtered_by_invalid_room_id(client):
+
+    fake = Faker()
+
+    params = {"room_id": fake.name()}
+
+    response = client.get("/v1/meetings", params=params)
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "errors": "The room_id need be a integer. Exemple: room_id: 100"
+    }
+
+
+def test_meetings_filtered_by_not_found_room_id_in_db(client, number):
+
+    params = {"room_id": number}
+
+    response = client.get("/v1/meetings", params=params)
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_meetings_filtered_by_room_id(client, meeting):
+
+    params = {"room_id": meeting.get("room_id")}
+
+    response = client.get("/v1/meetings", params=params)
+
+    assert response.status_code == 200
+    assert response.json()[0].get("id") == meeting.get("id")
 
 
 """
