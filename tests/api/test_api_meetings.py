@@ -1,4 +1,5 @@
 import pytest
+import pendulum
 from faker import Faker
 
 """
@@ -48,6 +49,43 @@ def test_meetings_filtered_by_not_found_room_id_in_db(client, number):
 def test_meetings_filtered_by_room_id(client, meeting):
 
     params = {"room_id": meeting.get("room_id")}
+
+    response = client.get("/v1/meetings", params=params)
+
+    assert response.status_code == 200
+    assert response.json()[0].get("id") == meeting.get("id")
+
+
+def test_meetings_filtered_by_invalid_date_format(client):
+
+    fake = Faker()
+
+    params = {"date": fake.name()}
+
+    response = client.get("/v1/meetings", params=params)
+
+    assert response.status_code == 400
+    assert response.json() == {"errors": "The date filter format must be yyyy-mm-dd"}
+
+
+def test_meetings_filtered_by_date_not_found_in_db(client, number):
+
+    fake = Faker()
+
+    params = {"date": fake.date(pattern="%Y-%m-%d")}
+
+    response = client.get("/v1/meetings", params=params)
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_meetings_filtered_by_date(client, meeting):
+
+    date = meeting.get("date_start")
+    date = pendulum.parse(date).to_date_string()
+
+    params = {"date": f"{date}"}
 
     response = client.get("/v1/meetings", params=params)
 

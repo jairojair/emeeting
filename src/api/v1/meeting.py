@@ -1,3 +1,4 @@
+import re
 import logging
 import pendulum
 from typing import Optional
@@ -25,10 +26,21 @@ def get_meetings(room_id: Optional[QueryParam], date: Optional[QueryParam]):
     Return all meetings.
     """
 
+    log.info(f"Get all meetings")
+
     meetings = Meeting.all()
 
     if room_id:
+
+        log.info(f"Meetings filter by room id: {room_id}")
+
         meetings = _filter_by_room_id(meetings, room_id)
+
+    if date:
+
+        log.info(f"Meetings filter by date: {date}")
+
+        meetings = _filter_by_date(meetings, date)
 
     return HTTP_200, meetings.serialize()
 
@@ -143,6 +155,21 @@ def _filter_by_room_id(meetings, room_id):
         raise HTTPError(HTTP_400, {"errors": msg})
 
     return meetings.where("room_id", id)
+
+
+def _filter_by_date(meetings, date):
+    """
+    Filter meetings by date.
+    """
+
+    date_filter_format = r"(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})$"
+
+    if not re.match(date_filter_format, date):
+
+        msg = "The date filter format must be yyyy-mm-dd"
+        raise HTTPError(HTTP_400, {"errors": msg})
+
+    return meetings.filter(lambda meeting: date in meeting.date_start)
 
 
 routes = [
