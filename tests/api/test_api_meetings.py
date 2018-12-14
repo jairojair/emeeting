@@ -83,6 +83,28 @@ def test_create_meeting_with_wrong_data(client):
     }
 
 
+def test_create_meeting_with_wrong_date_format(client, number):
+
+    fake = Faker()
+
+    meeting_data = {
+        "title": fake.text(10),
+        "start": "2018-12-12",
+        "end": "2018-12-12",
+        "owner": fake.name(),
+        "room_id": number,
+    }
+
+    response = client.post("/v1/meetings/", json=meeting_data)
+    assert response.status_code == 400
+    assert response.json() == {
+        "errors": {
+            "end": "must match pattern 2008-09-15T13:30:00+03:00",
+            "start": "must match pattern 2008-09-15T13:30:00+03:00",
+        }
+    }
+
+
 def test_create_meeting_invalid_room_id(client, number):
 
     fake = Faker()
