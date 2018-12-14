@@ -105,13 +105,30 @@ def test_create_meeting_with_wrong_date_format(client, number):
     }
 
 
+def test_create_meeting_with_date_start_bigger_than_end(client, room):
+
+    fake = Faker()
+
+    meeting_data = {
+        "title": fake.text(10),
+        "date_start": "2009-09-15T13:30:00+03:00",
+        "date_end": "2008-09-15T13:30:00+03:00",
+        "owner": fake.name(),
+        "room_id": room.get("id"),
+    }
+
+    response = client.post("/v1/meetings/", json=meeting_data)
+    assert response.status_code == 400
+    assert response.json() == {"errors": "The date end need be bigger than date start."}
+
+
 def test_create_meeting_invalid_room_id(client, number):
 
     fake = Faker()
 
     meeting_data = {
         "title": fake.text(60),
-        "date_start": fake.future_datetime().isoformat(),
+        "date_start": fake.iso8601(),
         "date_end": fake.future_datetime(end_date="+10m").isoformat(),
         "owner": fake.name(),
         "room_id": number,
@@ -128,7 +145,7 @@ def test_create_meeting(client, room):
 
     meeting_data = {
         "title": fake.text(60),
-        "date_start": fake.future_datetime().isoformat(),
+        "date_start": fake.iso8601(),
         "date_end": fake.future_datetime(end_date="+10m").isoformat(),
         "owner": fake.name(),
         "room_id": room.get("id"),
@@ -152,7 +169,7 @@ def test_update_meeting(client, room, meeting):
 
     meeting_data = {
         "title": fake.text(60),
-        "date_start": fake.future_datetime().isoformat(),
+        "date_start": fake.iso8601(),
         "date_end": fake.future_datetime(end_date="+10m").isoformat(),
         "owner": fake.name(),
         "room_id": room.get("id"),

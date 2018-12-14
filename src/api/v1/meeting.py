@@ -1,4 +1,5 @@
 import logging
+import pendulum
 from typing import Optional
 
 from molten import (
@@ -47,6 +48,11 @@ def create_meeting(meetingData: MeetingType):
     """
 
     _check_if_room_exist(meetingData.room_id)
+
+    date_start = meetingData.date_start
+    date_end = meetingData.date_end
+
+    _check_date_is_bigger_than(date_end, date_start)
 
     meeting = Meeting.create(**dump_schema(meetingData))
 
@@ -108,6 +114,19 @@ def _check_if_room_exist(id):
 
     if not room:
         raise HTTPError(HTTP_400, {"errors": "The room id don't exist."})
+
+
+def _check_date_is_bigger_than(end, start):
+    """
+    Check if date end is bigger than date start.
+    """
+
+    log.info(f"END: {end}")
+    log.info(f"Start: {start}")
+
+    if not pendulum.parse(end) > pendulum.parse(start):
+        msg = "The date end need be bigger than date start."
+        raise HTTPError(HTTP_400, {"errors": msg})
 
 
 def _filter_by_room_id(meetings, room_id):
