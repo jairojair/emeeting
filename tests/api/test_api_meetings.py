@@ -75,10 +75,10 @@ def test_create_meeting_with_wrong_data(client):
     assert response.json() == {
         "errors": {
             "title": "this field is required",
-            "end": "this field is required",
+            "date_end": "this field is required",
             "owner": "this field is required",
             "room_id": "this field is required",
-            "start": "this field is required",
+            "date_start": "this field is required",
         }
     }
 
@@ -89,8 +89,8 @@ def test_create_meeting_with_wrong_date_format(client, number):
 
     meeting_data = {
         "title": fake.text(10),
-        "start": "2018-12-12",
-        "end": "2018-12-12",
+        "date_start": "2018-12-12",
+        "date_end": "2018-12-12",
         "owner": fake.name(),
         "room_id": number,
     }
@@ -99,8 +99,8 @@ def test_create_meeting_with_wrong_date_format(client, number):
     assert response.status_code == 400
     assert response.json() == {
         "errors": {
-            "end": "must match pattern 2008-09-15T13:30:00+03:00",
-            "start": "must match pattern 2008-09-15T13:30:00+03:00",
+            "date_end": "must match pattern 2008-09-15T13:30:00+03:00",
+            "date_start": "must match pattern 2008-09-15T13:30:00+03:00",
         }
     }
 
@@ -111,8 +111,8 @@ def test_create_meeting_invalid_room_id(client, number):
 
     meeting_data = {
         "title": fake.text(60),
-        "start": fake.future_datetime().isoformat(),
-        "end": fake.future_datetime(end_date="+10m").isoformat(),
+        "date_start": fake.future_datetime().isoformat(),
+        "date_end": fake.future_datetime(end_date="+10m").isoformat(),
         "owner": fake.name(),
         "room_id": number,
     }
@@ -128,8 +128,8 @@ def test_create_meeting(client, room):
 
     meeting_data = {
         "title": fake.text(60),
-        "start": fake.future_datetime().isoformat(),
-        "end": fake.future_datetime(end_date="+10m").isoformat(),
+        "date_start": fake.future_datetime().isoformat(),
+        "date_end": fake.future_datetime(end_date="+10m").isoformat(),
         "owner": fake.name(),
         "room_id": room.get("id"),
     }
@@ -152,8 +152,8 @@ def test_update_meeting(client, room, meeting):
 
     meeting_data = {
         "title": fake.text(60),
-        "start": fake.future_datetime().isoformat(),
-        "end": fake.future_datetime(end_date="+10m").isoformat(),
+        "date_start": fake.future_datetime().isoformat(),
+        "date_end": fake.future_datetime(end_date="+10m").isoformat(),
         "owner": fake.name(),
         "room_id": room.get("id"),
     }

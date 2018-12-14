@@ -35,8 +35,8 @@ def meeting(room):
 
     meeting_data = {
         "title": fake.text(60),
-        "start": fake.future_datetime().isoformat(),
-        "end": fake.future_datetime(end_date="+10m").isoformat(),
+        "date_start": fake.future_datetime().isoformat(),
+        "date_end": fake.future_datetime(end_date="+10m").isoformat(),
         "owner": fake.name(),
         "room_id": room.get("id"),
     }

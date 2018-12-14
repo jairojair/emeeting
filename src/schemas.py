@@ -14,7 +14,7 @@ class RoomType:
 class MeetingType:
     id: Optional[int] = Field(response_only=True)
     title: str = Field(min_length=1)
-    start: str = Field(validator=DateValidator())
-    end: str = Field(validator=DateValidator())
+    date_start: str = Field(validator=DateValidator())
+    date_end: str = Field(validator=DateValidator())
     owner: str = Field()
     room_id: int

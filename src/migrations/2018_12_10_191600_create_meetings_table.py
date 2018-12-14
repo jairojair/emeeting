@@ -9,8 +9,8 @@ class CreateMeetingsTable(Migration):
         with self.schema.create("meetings") as table:
             table.increments("id")
             table.string("title")
-            table.string("start")
-            table.string("end")
+            table.string("date_start")
+            table.string("date_end")
             table.string("owner")
             table.timestamps()
 
