@@ -14,4 +14,6 @@
 
 ### Introduction
 
-The main goal for this project is create a simple and open source application for managing your room meetings.
+The main goal for this project is create a simple and open source application for managing your room meetings. 
+
+You can check the demo app on heroku [emeeting-demo](https://emeeting-demo.herokuapp.com) or build your own application using the [Quick Start Guide](started.md) 
