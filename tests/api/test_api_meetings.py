@@ -137,8 +137,8 @@ def test_create_meeting_with_wrong_date_format(client, number):
     assert response.status_code == 400
     assert response.json() == {
         "errors": {
-            "date_end": "must match pattern 2008-09-15T13:30:00+03:00",
-            "date_start": "must match pattern 2008-09-15T13:30:00+03:00",
+            "date_end": "must match pattern 2008-09-15T13:30:00",
+            "date_start": "must match pattern 2008-09-15T13:30:00",
         }
     }
 
@@ -149,8 +149,8 @@ def test_create_meeting_with_date_start_bigger_than_end(client, room):
 
     meeting_data = {
         "title": fake.text(10),
-        "date_start": "2009-09-15T13:30:00+03:00",
-        "date_end": "2008-09-15T13:30:00+03:00",
+        "date_start": "2009-09-15T13:30:00",
+        "date_end": "2008-09-15T13:30:00",
         "owner": fake.name(),
         "room_id": room.get("id"),
     }
