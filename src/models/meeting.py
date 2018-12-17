@@ -1,10 +1,21 @@
 import re
+import logging
 import pendulum
 
 from orator import Model
 from orator.orm import scope
 
 from models.room import Room
+
+log = logging.getLogger(__name__)
+
+
+class ConflictError(Exception):
+    pass
+
+
+class ValidateError(Exception):
+    pass
 
 
 class Meeting(Model):
@@ -13,20 +24,56 @@ class Meeting(Model):
     __fillable__ = ["title", "date_start", "date_end", "owner", "room_id"]
 
     def validate(self, meetingData):
+        """
+        Describe
+        """
 
-        data = meetingData
+        date_start = meetingData.date_start
+        room_id = meetingData.room_id
 
-        # check if room exist.
+        self.__check_if_room_exist(room_id)
+        self.__check_dates_logic(meetingData.date_end, date_start)
+        self.__check_if_room_is_available(room_id, date_start)
 
-        room = Room.find(data.room_id)
+    def __check_if_room_exist(self, id):
+        """
+        check if room exist.
+        """
 
-        if not room:
-            raise Exception("The room id not found.")
+        if not Room.find(id):
+            raise ValidateError("The room id not found.")
 
-        # Check if date end is bigger than date start.
+    def __check_dates_logic(self, end, start):
+        """
+        Check if date end is bigger than date start.
+        """
 
-        if not pendulum.parse(data.date_end) > pendulum.parse(data.date_start):
-            raise Exception("The date end need be bigger than date start.")
+        if not pendulum.parse(end) > pendulum.parse(start):
+            raise ValidateError("The date end need be bigger than date start.")
+
+    def __check_if_room_is_available(self, room_id, date):
+        """
+        """
+
+        meeting_date_to_string = pendulum.parse(date).to_date_string()
+
+        meetings = Meeting.by_room_id(room_id).by_date(meeting_date_to_string).get()
+
+        self.__check_in_period(pendulum.parse(date), meetings)
+
+    def __check_in_period(self, date_meeting, meetings):
+        """
+        """
+
+        for meeting in meetings:
+
+            start = pendulum.parse(meeting.date_start)
+            end = pendulum.parse(meeting.date_end)
+
+            period = end - start
+
+            if date_meeting in period:
+                raise ConflictError("Conflict, the room isn't available in this time.")
 
     @scope
     def by_room_id(self, query, id):
@@ -48,7 +95,7 @@ class Meeting(Model):
     @scope
     def by_date(self, query, date):
         """
-        Describe
+        Filter meetings by date.
         """
 
         if date is None:

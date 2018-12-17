@@ -7,13 +7,14 @@ from molten import (
     HTTP_201,
     HTTP_400,
     HTTP_404,
+    HTTP_409,
     HTTPError,
     dump_schema,
     QueryParam,
 )
 
 from schemas import MeetingType
-from models.meeting import Meeting
+from models.meeting import Meeting, ConflictError, ValidateError
 from models.room import Room
 
 log = logging.getLogger(__name__)
@@ -64,8 +65,11 @@ def create_meeting(meetingData: MeetingType):
 
         return HTTP_201, {"message": f"{msg}"}, headers
 
-    except Exception as error:
+    except ValidateError as error:
         raise HTTPError(HTTP_400, {"errors": str(error)})
+
+    except ConflictError as error:
+        raise HTTPError(HTTP_409, {"errors": str(error)})
 
 
 def update_meeting(id: int, meetingData: MeetingType):
