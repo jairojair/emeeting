@@ -1,3 +1,4 @@
+from wsgicors import CORS
 from molten import App, Include, Route
 from molten.openapi import Metadata, OpenAPIHandler, OpenAPIUIHandler
 from settings import logging
@@ -37,5 +38,6 @@ Start application
 """
 
 app = App(routes=routes)
+app = CORS(app, headers="*", methods="*", origin="*", maxage="86400")
 
 log.info("Start application successfully.")
