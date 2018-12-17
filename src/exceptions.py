@@ -2,7 +2,7 @@ class ConflictError(Exception):
     pass
 
 
-class ValidateError(Exception):
+class ValidationError(Exception):
     pass
 
 

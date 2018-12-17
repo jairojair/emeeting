@@ -17,7 +17,7 @@ from schemas import MeetingType
 from models.meeting import Meeting
 from models.room import Room
 
-from exceptions import ConflictError, ValidateError, NotFoundError
+from exceptions import ConflictError, ValidationError, NotFoundError
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ def get_meetings(room_id: Optional[QueryParam], date: Optional[QueryParam]):
         meetings = Meeting.by_room_id(room_id).by_date(date).get()
         return HTTP_200, meetings.serialize()
 
-    except Exception as error:
+    except ValidationError as error:
         raise HTTPError(HTTP_400, {"errors": str(error)})
 
 
@@ -71,7 +71,7 @@ def create_meeting(meetingData: MeetingType):
 
         return HTTP_201, {"message": f"{msg}"}, headers
 
-    except ValidateError as error:
+    except ValidationError as error:
         raise HTTPError(HTTP_400, {"errors": str(error)})
 
     except ConflictError as error:
@@ -93,7 +93,7 @@ def update_meeting(id: int, meetingData: MeetingType):
 
         return HTTP_200, {"message": "Meeting update successfully."}
 
-    except ValidateError as error:
+    except ValidationError as error:
         raise HTTPError(HTTP_400, {"errors": str(error)})
 
     except NotFoundError as error:
