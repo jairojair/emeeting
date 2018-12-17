@@ -1,5 +1,4 @@
 import logging
-import pendulum
 from typing import Optional
 
 from molten import (
@@ -41,7 +40,7 @@ def get_meeting_by_id(id: int):
     Get meeting by id.
     """
 
-    meeting = _find_meeting(id)
+    meeting = __find_meeting(id)
 
     return meeting.serialize()
 
@@ -51,21 +50,22 @@ def create_meeting(meetingData: MeetingType):
     Create a new meeting.
     """
 
-    _check_if_room_exist(meetingData.room_id)
+    try:
 
-    date_start = meetingData.date_start
-    date_end = meetingData.date_end
+        meeting = Meeting()
+        meeting.validate(meetingData)
 
-    _check_date_is_bigger_than(date_end, date_start)
+        meeting = Meeting.create(**dump_schema(meetingData))
 
-    meeting = Meeting.create(**dump_schema(meetingData))
+        headers = {"Content-Location": f"/v1/meetings/{meeting.id}"}
 
-    headers = {"Content-Location": f"/v1/meetings/{meeting.id}"}
+        msg = "Meeting created successfully."
+        log.info(f"{msg} with id: {meeting.id}")
 
-    msg = "Meeting created successfully."
-    log.info(f"{msg} with id: {meeting.id}")
+        return HTTP_201, {"message": f"{msg}"}, headers
 
-    return HTTP_201, {"message": f"{msg}"}, headers
+    except Exception as error:
+        raise HTTPError(HTTP_400, {"errors": str(error)})
 
 
 def update_meeting(id: int, meetingData: MeetingType):
@@ -73,11 +73,18 @@ def update_meeting(id: int, meetingData: MeetingType):
     Update a meeting by id
     """
 
-    meeting = _find_meeting(id)
-    meeting.update(**dump_schema(meetingData))
-    meeting.save()
+    try:
 
-    return HTTP_200, {"message": "Meeting update successfully."}
+        meeting = __find_meeting(id)
+        meeting.validate(meetingData)
+
+        meeting.update(**dump_schema(meetingData))
+        meeting.save()
+
+        return HTTP_200, {"message": "Meeting update successfully."}
+
+    except Exception as error:
+        raise HTTPError(HTTP_400, {"errors": str(error)})
 
 
 def delete_meeting(id: int):
@@ -85,7 +92,7 @@ def delete_meeting(id: int):
     Delete a meeting by id.
     """
 
-    meeting = _find_meeting(id)
+    meeting = __find_meeting(id)
     meeting.delete()
 
     return HTTP_200, {"message": "Meeting deleted successfully."}
@@ -96,7 +103,7 @@ Privates functions
 """
 
 
-def _find_meeting(id):
+def __find_meeting(id):
     """
     Find a meeting by id
     """
@@ -107,30 +114,6 @@ def _find_meeting(id):
         raise HTTPError(HTTP_404, {"errors": "Meeting id not found"})
 
     return meeting
-
-
-def _check_if_room_exist(id):
-    """
-    check if room exist.
-    """
-
-    room = Room.find(id)
-
-    if not room:
-        raise HTTPError(HTTP_400, {"errors": "The room id don't exist."})
-
-
-def _check_date_is_bigger_than(end, start):
-    """
-    Check if date end is bigger than date start.
-    """
-
-    log.info(f"END: {end}")
-    log.info(f"Start: {start}")
-
-    if not pendulum.parse(end) > pendulum.parse(start):
-        msg = "The date end need be bigger than date start."
-        raise HTTPError(HTTP_400, {"errors": msg})
 
 
 routes = [

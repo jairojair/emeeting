@@ -23,7 +23,7 @@ def get_room_by_id(id: int):
     Get room by id.
     """
 
-    room = _find_room(id)
+    room = __find_room(id)
 
     return room.serialize()
 
@@ -54,7 +54,7 @@ def update_room(id: int, roomData: RoomType):
     Update a room by id
     """
 
-    room = _find_room(id)
+    room = __find_room(id)
     room.name = roomData.name
     room.save()
 
@@ -66,7 +66,7 @@ def delete_room(id: int):
     Delete a room by id.
     """
 
-    room = _find_room(id)
+    room = __find_room(id)
     room.delete()
 
     return HTTP_200, {"message": "Room deleted successfully."}
@@ -77,7 +77,7 @@ Privates functions
 """
 
 
-def _find_room(id):
+def __find_room(id):
     """
     Find a room by id
     """

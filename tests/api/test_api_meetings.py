@@ -174,7 +174,7 @@ def test_create_meeting_invalid_room_id(client, number):
 
     response = client.post("/v1/meetings/", json=meeting_data)
     assert response.status_code == 400
-    assert response.json() == {"errors": "The room id don't exist."}
+    assert response.json() == {"errors": "The room id not found."}
 
 
 def test_create_meeting(client, room):
