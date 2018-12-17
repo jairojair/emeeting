@@ -6,22 +6,25 @@ from orator import Model
 from orator.orm import scope
 
 from models.room import Room
+from exceptions import ConflictError, ValidateError, NotFoundError
 
 log = logging.getLogger(__name__)
-
-
-class ConflictError(Exception):
-    pass
-
-
-class ValidateError(Exception):
-    pass
 
 
 class Meeting(Model):
 
     __visible__ = ["id", "title", "date_start", "date_end", "owner", "room_id"]
     __fillable__ = ["title", "date_start", "date_end", "owner", "room_id"]
+
+    @staticmethod
+    def find_or_fail(id):
+
+        meeting = Meeting.find(id)
+
+        if not meeting:
+            raise NotFoundError("Meeting id not found")
+
+        return meeting
 
     def validate(self, meetingData):
         """

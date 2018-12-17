@@ -14,8 +14,10 @@ from molten import (
 )
 
 from schemas import MeetingType
-from models.meeting import Meeting, ConflictError, ValidateError
+from models.meeting import Meeting
 from models.room import Room
+
+from exceptions import ConflictError, ValidateError, NotFoundError
 
 log = logging.getLogger(__name__)
 
@@ -41,9 +43,13 @@ def get_meeting_by_id(id: int):
     Get meeting by id.
     """
 
-    meeting = __find_meeting(id)
+    try:
 
-    return meeting.serialize()
+        meeting = Meeting.find_or_fail(id)
+        return meeting.serialize()
+
+    except NotFoundError as error:
+        raise HTTPError(HTTP_404, {"errors": str(error)})
 
 
 def create_meeting(meetingData: MeetingType):
@@ -79,7 +85,7 @@ def update_meeting(id: int, meetingData: MeetingType):
 
     try:
 
-        meeting = __find_meeting(id)
+        meeting = Meeting.find_or_fail(id)
         meeting.validate(meetingData)
 
         meeting.update(**dump_schema(meetingData))
@@ -87,8 +93,14 @@ def update_meeting(id: int, meetingData: MeetingType):
 
         return HTTP_200, {"message": "Meeting update successfully."}
 
-    except Exception as error:
+    except ValidateError as error:
         raise HTTPError(HTTP_400, {"errors": str(error)})
+
+    except NotFoundError as error:
+        raise HTTPError(HTTP_404, {"errors": str(error)})
+
+    except ConflictError as error:
+        raise HTTPError(HTTP_409, {"errors": str(error)})
 
 
 def delete_meeting(id: int):
@@ -96,28 +108,15 @@ def delete_meeting(id: int):
     Delete a meeting by id.
     """
 
-    meeting = __find_meeting(id)
-    meeting.delete()
+    try:
 
-    return HTTP_200, {"message": "Meeting deleted successfully."}
+        meeting = Meeting.find_or_fail(id)
+        meeting.delete()
 
+        return HTTP_200, {"message": "Meeting deleted successfully."}
 
-"""
-Privates functions
-"""
-
-
-def __find_meeting(id):
-    """
-    Find a meeting by id
-    """
-
-    meeting = Meeting.find(id)
-
-    if not meeting:
-        raise HTTPError(HTTP_404, {"errors": "Meeting id not found"})
-
-    return meeting
+    except NotFoundError as error:
+        raise HTTPError(HTTP_404, {"errors": str(error)})
 
 
 routes = [
