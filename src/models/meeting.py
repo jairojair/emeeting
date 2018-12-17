@@ -1,12 +1,32 @@
 import re
+import pendulum
+
 from orator import Model
 from orator.orm import scope
+
+from models.room import Room
 
 
 class Meeting(Model):
 
     __visible__ = ["id", "title", "date_start", "date_end", "owner", "room_id"]
     __fillable__ = ["title", "date_start", "date_end", "owner", "room_id"]
+
+    def validate(self, meetingData):
+
+        data = meetingData
+
+        # check if room exist.
+
+        room = Room.find(data.room_id)
+
+        if not room:
+            raise Exception("The room id not found.")
+
+        # Check if date end is bigger than date start.
+
+        if not pendulum.parse(data.date_end) > pendulum.parse(data.date_start):
+            raise Exception("The date end need be bigger than date start.")
 
     @scope
     def by_room_id(self, query, id):
