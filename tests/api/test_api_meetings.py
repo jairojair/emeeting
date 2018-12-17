@@ -177,6 +177,25 @@ def test_create_meeting_invalid_room_id(client, number):
     assert response.json() == {"errors": "The room id not found."}
 
 
+def test_create_meeting_with_conflict_date(client, room, meeting):
+
+    fake = Faker()
+
+    meeting_data = {
+        "title": fake.text(60),
+        "date_start": meeting.get("date_start"),
+        "date_end": fake.future_datetime(end_date="+10m").isoformat(),
+        "owner": fake.name(),
+        "room_id": room.get("id"),
+    }
+
+    response = client.post("/v1/meetings/", json=meeting_data)
+    assert response.status_code == 409
+    assert response.json() == {
+        "errors": "Conflict, the room isn't available in this time."
+    }
+
+
 def test_create_meeting(client, room):
 
     fake = Faker()
