@@ -30,5 +30,6 @@ markdown_extensions:
 nav:
   - Introduction: 'index.md'
   - Quickstart: 'started.md'
+  - API Docs: 'api.md'
 
 dev_addr: '0.0.0.0:7000'

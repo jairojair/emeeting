@@ -16,6 +16,7 @@ Firstly, install requirements down below:
 
 	docker-compose build
 	docker-compose run app make migrate
+	docker-compose run app make tests
 
 ##### Run
 
