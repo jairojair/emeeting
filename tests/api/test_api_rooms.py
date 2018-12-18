@@ -102,6 +102,13 @@ def test_create_and_delete_room(client):
     assert response.status_code == 200
 
 
+def test_delete_room_not_found(client, number):
+
+    response = client.delete(f"/v1/rooms/{number}")
+    assert response.status_code == 404
+    assert response.json() == {"errors": "Room id not found"}
+
+
 """
 Update room.
 """

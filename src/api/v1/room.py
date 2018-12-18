@@ -1,6 +1,7 @@
 import logging
 
 from molten import Route, HTTP_200, HTTP_201, HTTP_404, HTTP_409, HTTPError
+from exceptions import ConflictError, NotFoundError
 
 from schemas import RoomType
 from models.room import Room
@@ -15,6 +16,8 @@ def get_rooms():
 
     rooms = Room.all()
 
+    log.info("Get all rooms.")
+
     return HTTP_200, rooms.serialize()
 
 
@@ -23,9 +26,17 @@ def get_room_by_id(id: int):
     Get room by id.
     """
 
-    room = __find_room(id)
+    try:
 
-    return room.serialize()
+        room = Room.find_or_fail(id)
+
+        log.info(f"Get room by id: {id}")
+        return HTTP_200, room.serialize()
+
+    except NotFoundError as error:
+
+        log.error(f"NotFoundError: {error}")
+        raise HTTPError(HTTP_404, {"errors": str(error)})
 
 
 def create_room(roomData: RoomType):
@@ -33,20 +44,20 @@ def create_room(roomData: RoomType):
     Create a new room.
     """
 
-    name = roomData.name
+    try:
 
-    if Room.where("name", name).get():
+        name = roomData.name
+        Room.validate(name)
+        room = Room.create(name=name)
 
-        msg = "Conflict, This room name already exists in database."
-        raise HTTPError(HTTP_409, {"errors": msg})
+        headers = {"Content-Location": f"/v1/rooms/{room.id}"}
+        msg = "Room created successfully."
+        log.info(f"{msg} with id: {room.id}")
 
-    room = Room.create(name=name)
+        return HTTP_201, {"message": msg}, headers
 
-    headers = {"Content-Location": f"/v1/rooms/{room.id}"}
-    msg = "Room created successfully."
-    log.info(f"{msg} with id: {room.id}")
-
-    return HTTP_201, {"message": msg}, headers
+    except ConflictError as error:
+        raise HTTPError(HTTP_409, {"errors": str(error)})
 
 
 def update_room(id: int, roomData: RoomType):
@@ -54,11 +65,22 @@ def update_room(id: int, roomData: RoomType):
     Update a room by id
     """
 
-    room = __find_room(id)
-    room.name = roomData.name
-    room.save()
+    try:
 
-    return HTTP_200, {"message": "Room update successfully."}
+        room = Room.find_or_fail(id)
+
+        room.name = roomData.name
+        room.save()
+
+        msg = "Room update successfully."
+
+        log.info(f"{msg} with id: {id}")
+        return HTTP_200, {"message": msg}
+
+    except NotFoundError as error:
+
+        log.error(f"NotFoundError: {error}")
+        raise HTTPError(HTTP_404, {"errors": str(error)})
 
 
 def delete_room(id: int):
@@ -66,28 +88,20 @@ def delete_room(id: int):
     Delete a room by id.
     """
 
-    room = __find_room(id)
-    room.delete()
+    try:
 
-    return HTTP_200, {"message": "Room deleted successfully."}
+        room = Room.find_or_fail(id)
+        room.delete()
 
+        msg = "Room deleted successfully."
 
-"""
-Privates functions
-"""
+        log.info(f"{msg} with id: {id}")
+        return HTTP_200, {"message": msg}
 
+    except NotFoundError as error:
 
-def __find_room(id):
-    """
-    Find a room by id
-    """
-
-    room = Room.find(id)
-
-    if not room:
-        raise HTTPError(HTTP_404, {"errors": "Room id not found"})
-
-    return room
+        log.error(f"NotFoundError: {error}")
+        raise HTTPError(HTTP_404, {"errors": str(error)})
 
 
 routes = [
