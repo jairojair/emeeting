@@ -106,7 +106,7 @@ def update_meeting(id: int, meetingData: MeetingType):
         msg = f"Meeting update successfully."
 
         log.info(f"{msg} with id: {id}")
-        return HTTP_200, {"message": "Meeting update successfully."}
+        return HTTP_200, {"message": msg}
 
     except ValidationError as error:
 
@@ -137,7 +137,7 @@ def delete_meeting(id: int):
         msg = f"Meeting deleted successfully."
 
         log.info(f"{msg} with id: {id}")
-        return HTTP_200, {"message": "Meeting deleted successfully."}
+        return HTTP_200, {"message": msg}
 
     except NotFoundError as error:
 
