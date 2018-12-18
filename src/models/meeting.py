@@ -6,7 +6,7 @@ from orator import Model
 from orator.orm import scope
 
 from models.room import Room
-from exceptions import ConflictError, ValidateError, NotFoundError
+from exceptions import ConflictError, ValidationError, NotFoundError
 
 log = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class Meeting(Model):
         """
 
         if not Room.find(id):
-            raise ValidateError("The room id not found.")
+            raise ValidationError("The room id not found.")
 
     def __check_dates_logic(self, end, start):
         """
@@ -52,7 +52,7 @@ class Meeting(Model):
         """
 
         if not pendulum.parse(end) > pendulum.parse(start):
-            raise ValidateError("The date end need be bigger than date start.")
+            raise ValidationError("The date end need be bigger than date start.")
 
     def __check_if_room_is_available(self, room_id, date):
         """
@@ -93,7 +93,9 @@ class Meeting(Model):
             return query.where("room_id", id)
 
         except ValueError:
-            raise Exception("The room_id need be a integer. Exemple: room_id: 100")
+            raise ValidationError(
+                "The room_id need be a integer. Exemple: room_id: 100"
+            )
 
     @scope
     def by_date(self, query, date):
@@ -107,6 +109,6 @@ class Meeting(Model):
         date_filter_format = r"(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})$"
 
         if not re.match(date_filter_format, date):
-            raise Exception("The date filter format must be yyyy-mm-dd")
+            raise ValidationError("The date filter format must be yyyy-mm-dd")
 
         return query.where("date_start", "like", f"%{date}%")
