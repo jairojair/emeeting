@@ -1,5 +1,5 @@
 from wsgicors import CORS
-from molten import App, Include, Route
+from molten import App, Include, Route, ResponseRendererMiddleware
 from molten.openapi import Metadata, OpenAPIHandler, OpenAPIUIHandler
 from molten.contrib.prometheus import expose_metrics, prometheus_middleware
 
@@ -29,7 +29,7 @@ get_docs = OpenAPIUIHandler()
 Add middlewares
 """
 
-middlewares = [prometheus_middleware]
+middlewares = [prometheus_middleware, ResponseRendererMiddleware()]
 
 
 """
